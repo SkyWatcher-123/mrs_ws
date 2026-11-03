@@ -5,3 +5,7 @@ install/
 logs/
 .catkin_tools/
 .catkin_workspace
+
+# Python
+__pycache__/
+*.pyc
