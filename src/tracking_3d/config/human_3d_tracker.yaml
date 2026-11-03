@@ -1,0 +1,55 @@
+# Parameters for human_3d_tracker (private namespace, load with <rosparam ... /> inside the <node>).
+# Every value below is the built-in default; delete lines you don't need to change.
+
+# --- Inputs -------------------------------------------------------------------
+detections_topic:  /yolov7/yolov7
+depth_topic:       /obs_camera/aligned_depth_to_color/image_raw     # must be the ALIGNED depth
+camera_info_topic: /obs_camera/aligned_depth_to_color/camera_info
+
+# --- Frames -------------------------------------------------------------------
+target_frame:    map         # boxes / markers / tracking are expressed here (z-up frame). "/map" also accepted.
+reference_frame: base_link   # human_distances are measured from this frame's origin
+planar_distance: true        # true: distance in reference_frame's x-y plane, false: full 3D
+tf_timeout:      0.1         # s to wait for TF at the image stamp before falling back to latest
+
+# --- Time sync (YOLO output arrives later than the depth image it belongs to) ---
+depth_buffer_size: 30        # depth frames kept (~1 s at 30 Hz); raise if YOLO latency > 1 s
+max_sync_offset:   0.05      # s, warn if no depth frame is closer than this to the YOLO stamp
+
+# --- Detection filtering ------------------------------------------------------
+person_class_id: 0
+min_score:       0.0
+
+# --- Depth extraction ---------------------------------------------------------
+depth_scale: 0.001           # 16UC1 units -> metres (D435 default depth units = 1 mm)
+min_depth:   0.3
+max_depth:   8.0
+# Torso window inside the YOLO box: centred, this fraction of box width,
+# from this fraction to that fraction of box height (measured from the top).
+roi_width_fraction:  0.4
+roi_top_fraction:    0.15
+roi_bottom_fraction: 0.55
+pixel_stride:        2       # sample every Nth pixel in the window
+depth_bin_size:      0.05    # m, histogram bin used to find the person's depth cluster
+min_cluster_fraction: 0.15   # nearest depth peak holding >= this share of samples is the person
+cluster_tolerance:   0.25    # m, pixels within this of the peak belong to the person
+min_valid_points:    20
+body_depth_offset:   0.10    # m, camera sees the body's front surface; push to body centre
+
+# --- Tracking (constant-velocity Kalman filter in target_frame) ----------------
+max_tracking_distance: 1.0   # m, association gate
+max_coast_cycles: 5          # YOLO frames without a match before a track is dropped
+min_hits: 3                  # matches before a track is published
+process_noise_accel: 2.0     # m/s^2, how quickly people can change velocity
+meas_noise_lateral: 0.05     # m, measurement std across the viewing ray
+meas_noise_depth: 0.05       # m, measurement std along the ray = depth + quadratic * range^2
+meas_noise_depth_quadratic: 0.01
+init_velocity_std: 1.0       # m/s
+
+# --- Output box ---------------------------------------------------------------
+human_width: 0.5
+human_depth: 0.3
+default_box_height: 1.7      # used when the height can't be measured
+min_box_height: 0.5
+max_box_height: 2.2
+marker_lifetime: 0.5

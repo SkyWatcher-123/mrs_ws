@@ -1,0 +1,7 @@
+# catkin workspace build products
+build/
+devel/
+install/
+logs/
+.catkin_tools/
+.catkin_workspace

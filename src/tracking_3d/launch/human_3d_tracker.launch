@@ -1,0 +1,14 @@
+<launch>
+  <arg name="target_frame" default="map"/>
+
+  <node pkg="tracking_3d" type="human_3d_tracker" name="human_3d_tracker" output="screen">
+    <rosparam command="load" file="$(find tracking_3d)/config/human_3d_tracker.yaml"/>
+    <param name="target_frame" value="$(arg target_frame)"/>
+  </node>
+
+  <!-- Optional: the tracker already publishes human_markers in target_frame.
+       Leave frame_id empty to draw in the detections' frame, or set it to re-express them. -->
+  <node pkg="tracking_3d" type="detection3d_visualizer" name="detection3d_visualizer" output="screen">
+    <param name="frame_id" value=""/>
+  </node>
+</launch>
